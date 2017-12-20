@@ -1,9 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DigitalRuby.Threading;
+using System;
 
 /// <summary>
-/// 
+/// FrameManager
+/// Nash
 /// </summary>
 public class FrameManager : MonoBehaviour
 {
@@ -18,6 +21,10 @@ public class FrameManager : MonoBehaviour
         }
     }
 
+    public static long currentNetworkFrame { get; protected set; }
+
+
+    private bool isRunning = false;
     private void Awake()
     {
         instance = this;
@@ -25,12 +32,16 @@ public class FrameManager : MonoBehaviour
 
     public void StartGame()
     {
+        Debug.Log("StartGame...");
+        isRunning = true;
         sceneAssetsManager = gameObject.AddComponent<SceneAssetsManager>();
     }
 
     public void EndGame()
     {
-        GameObject.Destroy(sceneAssetsManager);
+        Debug.Log("EndGame...");
+        isRunning = false;
+        Destroy(sceneAssetsManager);
         sceneAssetsManager = null;
     }
 
@@ -42,20 +53,42 @@ public class FrameManager : MonoBehaviour
 
     void FixedUpdate()
     {
-        //todo multiple thread
+        if (isRunning)
+        {
+            currentNetworkFrame++;
+            EZThread.ExecuteInBackground(DoFixedUpdate, UpdateUnitFrameInfo);
+        }
+    }
+
+    private void UpdateUnitFrameInfo(object obj)
+    {
+        for (int i = 0; i < sceneAssetsManager.playerList.Count; i++)
+        {
+            Player player = sceneAssetsManager.playerList[i];
+            UnitFrameView unitFrameView = sceneAssetsManager.unitFrameViewMap[player.myInfo.id];
+            unitFrameView.AddFrameInfo(player.unitFrameInfo);
+        }
+    }
+
+    private object DoFixedUpdate()
+    {
         for (int i = 0; i < sceneAssetsManager.playerList.Count; i++)
         {
             Player player = sceneAssetsManager.playerList[i];
             player.DoFixedUpdate();
         }
+        return null;
     }
 
     void Update()
     {
-        for (int i = 0; i < sceneAssetsManager.unitFrameViewList.Count; i++)
+        if (isRunning)
         {
-            UnitFrameView unitFrameView = sceneAssetsManager.unitFrameViewList[i];
-            unitFrameView.DoUpdate();
+            for (int i = 0; i < sceneAssetsManager.unitFrameViewList.Count; i++)
+            {
+                UnitFrameView unitFrameView = sceneAssetsManager.unitFrameViewList[i];
+                unitFrameView.DoUpdate();
+            }
         }
     }
 }

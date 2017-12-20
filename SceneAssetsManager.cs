@@ -13,10 +13,13 @@ public class SceneAssetsManager : MonoBehaviour
         playerList = new List<Player>();
         unitFrameViewList = new List<UnitFrameView>();
         unitFrameViewMap = new Dictionary<long, UnitFrameView>();
+
+        AddPlayer();
     }
 
     private void AddPlayer()
     {
+        Debug.Log("AddPlayer...");
         Player player = new Player();
         BaseUnitInfo info = new BaseUnitInfo();
         //TODO copy data from server and config

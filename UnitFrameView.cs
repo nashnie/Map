@@ -48,9 +48,18 @@ public class UnitFrameView : MonoBehaviour
 
     public void DoUpdate()
     {
+        //切割时间
         //lerp position and rotation
         //play effect 
         //etc..
+
+        Debug.Log("DoUpdate...");
+        if (frameInfoList.Count > 0)
+        {
+            frameInfo = frameInfoList[0];
+            frameInfoList.RemoveAt(0);
+            Debug.Log("DoUpdate frame " + frameInfo.frame + " t " + Time.time);
+        }
     }
 
     public void Clear()

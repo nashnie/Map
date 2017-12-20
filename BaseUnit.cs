@@ -13,19 +13,20 @@ public class BaseUnit
     public Vector3 position;
     public bool canRotation = false;
     public float rotation;
+    public UnitFrameInfo unitFrameInfo;
 
-    protected BaseUnitInfo unitInfo;
-    protected UnitFrameInfo unitFrameInfo;
+    public BaseUnitInfo myInfo;
 
     public virtual void Init(BaseUnitInfo unitInfo)
     {
-        this.unitInfo = unitInfo;
+        this.myInfo = unitInfo;
     }
 
     public virtual void DoFixedUpdate()
     {
         //TODO moveStep skillStep etc...
         unitFrameInfo = GenericObjectPool<UnitFrameInfo>.Get();
+        unitFrameInfo.frame = FrameManager.currentNetworkFrame;
         unitFrameInfo.canMove = canMove;
         unitFrameInfo.canRotate = canRotation;
         if (canMove)
@@ -36,7 +37,7 @@ public class BaseUnit
         {
             unitFrameInfo.rotation = rotation;
         }
-        FrameManager.Instance.FireUnitFrameInfo(unitFrameInfo);
+        Debug.Log("DoFixedUpdate...");
     }
 
     public virtual void Clear()
@@ -48,6 +49,6 @@ public class BaseUnit
     public virtual void Destroy()
     {
         unitFrameInfo = null;
-        unitInfo = null;
+        myInfo = null;
     }
 }
